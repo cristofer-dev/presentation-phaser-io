@@ -1,0 +1,162 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+    <title>Phaser - Mi Primer Juego, part 8</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+function preload() {
+
+    game.load.image('sky', 'assets/sky.png');
+    game.load.image('ground', 'assets/platform.png');
+    game.load.image('star', 'assets/star.png');
+    game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+
+}
+
+var player;
+var platforms;
+var cursors;
+
+var stars;
+
+function create() {
+
+    //  Habilitamos la fisica
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    //  Agregamos el fondo
+    game.add.sprite(0, 0, 'sky');
+
+    //  Creamos un grupo
+    platforms = game.add.group();
+
+    //  Habilitar la fisica
+    platforms.enableBody = true;
+
+    // Creamos el piso
+    var ground = platforms.create(0, game.world.height - 2, 'ground');
+
+    //  Escalamos el piso
+    ground.scale.setTo(2, 2);
+
+    //  Esto evita que se caiga cuando saltas sobre el piso
+    ground.body.immovable = true;
+
+    //  Creamos 1° plataforma 
+    var ledge = platforms.create(400, 400, 'ground');
+    ledge.body.immovable = true;
+
+    //  Creamos 2° plataforma 
+    ledge = platforms.create(-150, 250, 'ground');
+    ledge.body.immovable = true;
+
+    //  Creamos 3° plataforma 
+    ledge = platforms.create(500, 100, 'ground');
+    ledge.body.immovable = true;
+
+    // Agregamos al personaje
+    player = game.add.sprite(32, game.world.height - 150, 'dude');
+
+    //  Habilitamos la fisica para el jugador
+    game.physics.arcade.enable(player);
+
+    //  Propiedades fisicas del jugador (pequeño rebote inicial)
+    player.body.bounce.y = 0.2;
+    player.body.gravity.y = 300;
+    player.body.collideWorldBounds = true;
+
+    //  Nuetras dos acciones, caminar a la izquierda y a la derecha
+    //               .add(name, frames, frameRate, loop, useNumericIndex)
+    player.animations.add('left', [0, 1, 2, 3], 10, true);
+    player.animations.add('right', [5, 6, 7, 8], 10, true);
+
+    //  Grupo para las estrellas
+    stars = game.add.group();
+
+    //  Habilitamos la fisica
+    stars.enableBody = true;
+
+    //  Creamos 24 estrellas equidistantes
+    for (var i = 0; i < 24; i++)
+    {
+        //  creamos la estrella dentro del grupo "stars"
+        var star = stars.create(i * 40, 0, 'star');
+
+        //  Habilitar gravedad
+        star.body.gravity.y = 300;
+
+        //  Rebte random para cada estrella
+        star.body.bounce.y = 0.7 + Math.random() * 0.2;
+    }
+
+    //  Nuestros controles.
+    cursors = game.input.keyboard.createCursorKeys();
+    
+}
+
+function update() {
+
+    //  Habilita colision entre jugador y plataformas
+    //  Habilita colision entre estrellas y plataformas
+    game.physics.arcade.collide(player, platforms);
+    game.physics.arcade.collide(stars, platforms);
+
+    //  Check overlap y llama a collectStar
+    game.physics.arcade.overlap(player, stars, collectStar, null, this);
+
+    //  Reset a la velocidad del jugador
+    player.body.velocity.x = 0;
+
+    if (cursors.left.isDown)
+    {
+        //  Se mueve a la izq
+        player.body.velocity.x = -150;
+
+        player.animations.play('left');
+    }
+    else if (cursors.right.isDown)
+    {
+        //  Se mueve a la der
+        player.body.velocity.x = 150;
+
+        player.animations.play('right');
+    }
+    else
+    {
+        //  se queda quieto
+        player.animations.stop();
+
+        player.frame = 4;
+    }
+    
+    //  Permite el salto si esta tocando el suelo
+    if (cursors.up.isDown && player.body.touching.down)
+    {
+        player.body.velocity.y = -350;
+    }
+
+}
+
+function collectStar (player, star) {
+    
+    // Remueve las estrellas de la pantalla
+    star.kill();
+
+}
+
+</script>
+
+</body>
+</html>

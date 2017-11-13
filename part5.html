@@ -1,0 +1,89 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+    <title>Phaser - Mi Primer Juego, part 5</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+function preload() {
+
+    game.load.image('sky', 'assets/sky.png');
+    game.load.image('ground', 'assets/platform.png');
+    game.load.image('star', 'assets/star.png');
+    game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+
+}
+
+var platforms;
+
+function create() {
+
+    //  Habilitamos la fisica
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    //  Agregamos el fondo
+    game.add.sprite(0, 0, 'sky');
+
+    //  Creamos un grupo
+    platforms = game.add.group();
+
+    //  Habilitar la fisica
+    platforms.enableBody = true;
+
+    // Creamos el piso
+    var ground = platforms.create(0, game.world.height - 2, 'ground');
+
+    //  Escalamos el piso
+    ground.scale.setTo(2, 2);
+
+    //  Esto evita que se caiga cuando saltas sobre el piso
+    ground.body.immovable = true;
+
+    //  Creamos 1° plataforma 
+    var ledge = platforms.create(400, 400, 'ground');
+    ledge.body.immovable = true;
+
+    //  Creamos 2° plataforma 
+    ledge = platforms.create(-150, 250, 'ground');
+    ledge.body.immovable = true;
+
+    //  Creamos 3° plataforma 
+    ledge = platforms.create(500, 100, 'ground');
+    ledge.body.immovable = true;
+
+    // Agregamos al personaje
+    player = game.add.sprite(32, game.world.height - 400, 'dude');
+
+    //  Habilitamos la fisica para el jugador
+    game.physics.arcade.enable(player);
+
+    //  Propiedades fisicas del jugador (pequeño rebote inicial)
+    player.body.bounce.y = 0.5;
+    player.body.gravity.y = 300;
+    player.body.collideWorldBounds = true;
+
+    //  Nuetras dos acciones, caminar a la izquierda y a la derecha
+    //               .add(name, frames, frameRate, loop, useNumericIndex)
+    player.animations.add('left', [0, 1, 2, 3], 10, true);
+    player.animations.add('right', [5, 6, 7, 8], 10, true);
+
+}
+
+function update() {
+}
+
+</script>
+
+</body>
+</html>
